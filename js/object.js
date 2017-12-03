@@ -72,6 +72,14 @@ class projectile extends object{
 			var sect = tobj.rayIntersect(r);
 			if(sect){
 				this.pos = sect.clone();
+				if(sect.y == tobj.top)
+					this.createSparks(Math.PI / -2);
+				else if(sect.y == tobj.bottom)
+					this.createSparks(Math.PI / 2);
+				else if(sect.x == tobj.left)
+					this.createSparks(Math.PI);
+				else if(sect.x == tobj.right)
+					this.createSparks(0);
 				this.destroy();
 			}
 		}
@@ -114,6 +122,9 @@ class projectile extends object{
 		clone.spawnCorpse(new vec2(this.vel.x / 6, ycv));
 		
 		this.destroy();
+		
+		if(allClonesDead())
+			roundTransition++;
 	}
 	hitPlayer(player){
 		this.destroy();

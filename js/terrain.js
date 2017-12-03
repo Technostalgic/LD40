@@ -44,6 +44,17 @@ class terrain{
 		return r.mirrorify();
 	}
 	
+	findPlayerSpawnPoint(){
+		var pspawns = [];
+		for(var i = this.terrainObjects.length - 1; i >= 0; i--)
+			if(this.terrainObjects[i].right < 0)
+				pspawns.push(this.terrainObjects[i]);
+		
+		var rs = Math.floor(pspawns.length * Math.random());
+		var r = pspawns[rs].center();
+		r.y = pspawns[rs].top - 19;
+		return r;
+	}
 	mirrorify(){
 		var mobjs = [];
 		for(var i = 0; i < this.terrainObjects.length; i++){
@@ -76,10 +87,10 @@ class terrain{
 		drawBoxOutline(ctx, this.bounds, "#FFF", 2);
 	}
 	draw(ctx){
-		this.drawBounds(ctx);
 		for(var i = this.terrainObjects.length - 1; i >= 0; i--){
 			this.terrainObjects[i].draw(ctx);
 		}
+		this.drawBounds(ctx);
 	}
 }
 

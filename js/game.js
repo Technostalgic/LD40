@@ -26,7 +26,8 @@ var p1,
 	
 var gravity = 0.7;
 	
-var gameMode = 0;
+var gameMode = 0,
+	roundTransition = 0;
 
 function loadControlBindings(){
 	controls = {
@@ -80,6 +81,12 @@ function updateMousePos(e){
 function onKeyPress(e){
 	if(!pressedKeys.includes(e.keyCode))
 		pressedKeys.push(e.keyCode);
+
+	if(gameMode != 1){
+		if(e.keyCode == controls.spacebar)
+			select();
+	}
+	
 	//console.log(e.key + ": " + e.keyCode);
 	if(e.keyCode == 220)
 		nextRound();
@@ -126,29 +133,53 @@ function init(){
 	startGame();
 }
 
+function select(){
+	switch(gameMode){
+		case 0: startGame(); break;
+		case 2: nextRound(); break;
+	}
+}
 function startGame(){
 	gameMode = 1;
+	clones = [];
+	
+	worldTerrain = terrain.generateLevel();
+	startRound();
+	
+	var clone = p1.createClone();
+	clone.frames.push(createPlayerFrame(new vec2(p1.pos.x * -1, p1.pos.y)));
+	clone.frames.push(createPlayerFrame(new vec2(p1.pos.x * -1, p1.pos.y)));
+	clones.push(clone);
+}
+function startRound(){
+	gameMode = 1;
+	roundTransition = 0;
 	effects = [];
 	glowEffects = [];
 	lights = [];
-	clones = [];
 	projectiles = [];
 	
+	resetClones();
+	
 	p1 = new player();
-	worldTerrain = terrain.generateLevel();
+	p1.pos = worldTerrain.findPlayerSpawnPoint();
 	setCamCenter(p1.pos.clone());
+}
+function finishRound(){
+	gameMode = 2;
 }
 function nextRound(){
 	var clone = p1.createClone();
 	clones.push(clone);
-	
-	effects = [];
-	lights = [];
-	projectiles = [];
-	resetClones();
-	
-	p1 = new player();
-	setCamCenter(p1.pos.clone());
+	startRound();
+}
+
+function allClonesDead(){
+	for(var i = clones.length - 1; i >= 0; i--){
+		if(!clones[i].dead)
+			return false;
+	}
+	return true;
 }
 function resetClones(){
 	for(var i = clones.length - 1; i >= 0; i--){
@@ -186,6 +217,12 @@ function updateGame(){
 	easeCamCenter(p1.pos.plus(new vec2(0, -50).plus(p1.vel.multiply(25))));
 	
 	updateProjectiles();
+	
+	if(roundTransition > 0){
+		roundTransition++;
+		if(roundTransition > 60)
+			finishRound();
+	}
 }
 function updateClones(){
 	for(var i = clones.length - 1; i >= 0; i--)

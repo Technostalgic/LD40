@@ -72,6 +72,7 @@ class player extends character{
 	}
 	
 	control(){
+		if(roundTransition > 0) return;
 		if(controlActive(controls.right)) this.control_move(1);
 		if(controlActive(controls.left)) this.control_move(-1);
 		if(controlActive(controls.jump)) this.control_jump();
@@ -301,7 +302,6 @@ class playerClone{
 		var c = new corpse();
 		c.pos = vec2.fromOther(this.pos);
 		c.vel = vec2.fromOther(this.vd).plus(vel);
-		console.log(vel +":"+ this.vd +": "+ c.vel);
 		c.flipped = vel.x < 0;
 		c.add();
 	}
