@@ -277,6 +277,17 @@ function drawHUD(ctx){
 	ctx.drawImage(gfx.hud_manaBar, sprt.left, sprt.top, sprt.width, sprt.height, tpos.x, tpos.y, sprt.width * 2, sprt.height * 2);
 }
 
+function drawLine(ctx, start, end, color, thickness = 2){
+	var tstart = start.minus(camPos).plus(getScreenCenter());
+	var tend = end.minus(camPos).plus(getScreenCenter());
+	
+	ctx.strokeStyle = color;
+	ctx.lineWidth = thickness;
+	ctx.beginPath();
+	ctx.moveTo(tstart.x, tstart.y);
+	ctx.lineTo(tend.x, tend.y);
+	ctx.stroke();
+}
 function drawBoxFill(ctx, bx, color){
 	var tbox = bx.clone();
 	tbox.position = tbox.position.minus(camPos).plus(getScreenCenter());

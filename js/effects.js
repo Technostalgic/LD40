@@ -18,8 +18,40 @@ class effect{
 	draw(ctx){}
 }
 
-class lightPartcle extends effect{
+class lightParticle extends effect{
+	constructor(life = Math.rand() * 30 + 30){
+		super();
+		this.life = life;
+		this.maxLife = life;
+		this.vel;
+		this.radius;
+		this.intensity;
+		this.color = [255,255,0,1];
+	}
 	
+	update(){
+		this.pos = this.pos.plus(this.vel);
+		
+		this.life--;
+		if(this.life <= 0)
+			this.remove();
+	}
+	
+	add(){ super.add(true); }
+	
+	draw(ctx){
+		var ints = this.intensity * (this.life / this.maxLife);
+		var a = this.color[3] * (this.life / this.maxLife);
+		var col = "rgba(" + this.color[0] + "," + this.color[1] + "," + this.color[2] + "," + a + ")";
+		
+		drawLine(ctx, this.pos, this.pos.plus(this.vel), col, 2);
+		
+		lights.push({
+			pos:this.pos,
+			radius:this.radius,
+			intensity:ints
+		});
+	}
 }
 
 class corpse extends effect{

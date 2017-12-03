@@ -41,18 +41,27 @@ class projectile extends object{
 		this.checkTerrainCollisions(worldTerrain);
 	}
 	checkTerrainCollisions(terrain){
-		var bpos = null;
-		if(this.pos.x > terrain.bounds.right)
-			bpos = new vec2(terrain.bounds.right, this.pos.y); 
-		if(this.pos.x < terrain.bounds.left)
-			bpos = new vec2(terrain.bounds.left, this.pos.y);
-		if(this.pos.y > terrain.bounds.bottom)
-			bpos = new vec2(this.pos.x, terrain.bounds.bottom);
-		if(this.pos.y < terrain.bounds.top )
-			bpos = new vec2(this.pos.x, terrain.bounds.top);
-		
-		if(bpos){
-			this.pos = bpos;
+		if(this.pos.x > terrain.bounds.right){
+			this.pos = new vec2(terrain.bounds.right, this.pos.y);
+			this.createSparks(Math.PI);
+			this.destroy();
+			return;
+		}
+		if(this.pos.x < terrain.bounds.left){
+			this.pos = new vec2(terrain.bounds.left, this.pos.y);
+			this.createSparks(0);
+			this.destroy();
+			return;
+		}
+		if(this.pos.y > terrain.bounds.bottom){
+			this.pos = new vec2(this.pos.x, terrain.bounds.bottom);
+			this.createSparks(Math.PI / -2);
+			this.destroy();
+			return;
+		}
+		if(this.pos.y < terrain.bounds.top){
+			this.pos = new vec2(this.pos.x, terrain.bounds.top);
+			this.createSparks(Math.PI / 2);
 			this.destroy();
 			return;
 		}
@@ -124,6 +133,22 @@ class projectile extends object{
 	}
 	destroy(){
 		this.remove();
+	}
+	createSparks(dir){
+		var count = Math.random() * 2 + 3;
+		
+		for(var i = 0; i < count; i++){
+			var life = 10 + Math.random() * 10;
+			var ang = dir + (Math.random() - 0.5) * Math.PI;
+			var spd = Math.random() * 5 + 3;
+			
+			var p = new lightParticle(life);
+			p.pos = this.pos;
+			p.vel = vec2.fromAng(ang, spd);
+			p.radius = Math.random() * 15 + 15;
+			p.intensity = 1 + Math.random() * 0.5;
+			p.add();
+		}
 	}
 	
 	draw(ctx){
