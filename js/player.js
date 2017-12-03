@@ -78,7 +78,7 @@ class player extends character{
 		if(controlActive(controls.attack)) this.control_fire();
 	}
 	control_move(dir){
-		var accspeed = 1;
+		var accspeed = 0.25;
 		dir = Math.sign(dir);
 		
 		this.acc.x += dir * accspeed;
@@ -180,11 +180,14 @@ class player extends character{
 			}
 		}
 		else{
+			var bdist = this.hitbox.bottom - terobj.top;
 			if(this.vel.x > 0){
-				coldir = 1;
+				var rdist = this.hitbox.right - terobj.left;
+				coldir = rdist < bdist ? 1 : 0;
 			}
 			else if(this.vel.x < 0){
-				coldir = 2;
+				var ldist = terobj.right - this.hitbox.left;
+				coldir = ldist < bdist ? 2 : 0;
 			}
 			else {
 				var rdist = this.hitbox.right - terobj.left;
@@ -192,7 +195,8 @@ class player extends character{
 				coldir = rdist <= ldist ? 1 : 2;
 			}
 		}
-		
+		console.log(coldir);
+		console.log("--");
 		
 		switch(coldir){
 			case 0: this.hitGround(terobj.top); break;
@@ -232,8 +236,12 @@ class player extends character{
 		if(Math.abs(this.acc.x) > 0.1)
 			frame = 2 + Math.floor(currentTime / 60) % 3;
 		if(!this._onGround) frame = 1;
-		if(Math.abs(this.acc.x) > 0.1)
+		if(Math.abs(this.acc.x) > 0.1){
+			var f = this._flipped;
 			this._flipped = this.acc.x < 0 ? true : false;
+			if(f != this._flipped)
+				this.currentRFrame.fl = true;
+		}
 		switch(frame){
 			case 0: sprite.position = new vec2(); break;									//idle
 			case 1: sprite.position = new vec2(sprite.width * 1, sprite.height * 0); break; //jumping
@@ -273,7 +281,7 @@ class playerClone{
 		return vec2.fromOther(this.pos).plus(tpos.multiply(2));
 	}
 	fire(){
-		var spd = 15;
+		var spd = 7.5;
 		var ang = this._flipped ? Math.PI : 0;
 		
 		var p = new projectile(false);
@@ -305,8 +313,8 @@ class playerClone{
 		this.vd = new vec2(p0.x - p1.x, p0.y - p1.y); //derived velocity
 		this.acc = this.lastVel.minus(this.vd);
 		
-		if(Math.abs(this.acc.x) > 0.1)
-			this._flipped = this.acc.x > 0 ? false : true;
+		if(this.frames[this.currentFrame].fl)
+			this._flipped = !this._flipped;
 		
 		this.lastVel = this.vd;
 	}
@@ -316,7 +324,7 @@ class playerClone{
 		//drawBoxOutline(ctx, this.hitbox, "#FFF");
 		var sprite = new box(0, 0, 12, 19);
 		var frame = 0;
-		if(Math.abs(this.acc.x) > 0.1)
+		if(Math.abs(this.vd.x) > 0.5)
 			frame = 2 + Math.floor((this.runFrameOffset + currentTime) / 60) % 3;
 		if(this.vd.y != 0)
 			frame = 1;

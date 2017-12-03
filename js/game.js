@@ -129,7 +129,7 @@ function startGame(){
 	projectiles = [];
 	
 	p1 = new player();
-	worldTerrain = terrain.getDefaultTerrain(p1.pos);
+	worldTerrain = terrain.generateLevel();
 	setCamCenter(p1.pos.clone());
 }
 function nextRound(){
@@ -142,7 +142,6 @@ function nextRound(){
 	resetClones();
 	
 	p1 = new player();
-	worldTerrain = terrain.getDefaultTerrain(p1.pos);
 	setCamCenter(p1.pos.clone());
 }
 function resetClones(){
