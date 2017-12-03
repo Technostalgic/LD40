@@ -4,6 +4,7 @@ var canvas,
 	context_lighting;
 
 var effects = [],
+	glowEffects = [],
 	lights = [];
 	
 var gfx = {},
@@ -22,7 +23,9 @@ var p1,
 	worldTerrain,
 	projectiles =[],
 	clones = [];
-
+	
+var gravity = 0.7;
+	
 var gameMode = 0;
 
 function loadControlBindings(){
@@ -43,12 +46,14 @@ function loadGraphics(){
 		hud_manaBar: new Image(),
 		player: new Image(),
 		clone: new Image(),
+		corpse: new Image(),
 		bullet: new Image()
 	};
 	gfx.back_cave.src = "./gfx/back_cave.png"
 	gfx.hud_manaBar.src = "./gfx/hud_manaBar.png";
 	gfx.player.src = "./gfx/player.png";
 	gfx.clone.src = "./gfx/clone.png";
+	gfx.corpse.src = "./gfx/corpse.png";
 	gfx.bullet.src = "./gfx/bullet.png";
 	
 	vfx = {
@@ -124,6 +129,7 @@ function init(){
 function startGame(){
 	gameMode = 1;
 	effects = [];
+	glowEffects = [];
 	lights = [];
 	clones = [];
 	projectiles = [];
@@ -148,6 +154,7 @@ function resetClones(){
 	for(var i = clones.length - 1; i >= 0; i--){
 		clones[i].dead = false;
 		clones[i].currentFrame = 0;
+		clones[i]._flipped = true;
 	}
 }
 
@@ -167,6 +174,7 @@ function step(){
 
 function update(){
 	updateEffects();
+	updateGlowEffects();
 	if(gameMode == 1)
 		updateGame();
 }
@@ -191,6 +199,10 @@ function updateEffects(){
 	for(var i = effects.length - 1; i >= 0; i--)
 		effects[i].update();
 }
+function updateGlowEffects(){
+	for(var i = glowEffects.length - 1; i >= 0; i--)
+		glowEffects[i].update();
+}
 
 function drawClones(ctx){
 	for(var i = clones.length - 1; i >= 0; i--)
@@ -203,6 +215,10 @@ function drawProjectiles(ctx){
 function drawEffects(ctx){
 	for(var i = effects.length - 1; i >= 0; i--)
 		effects[i].draw(ctx);
+}
+function drawGlowEffects(ctx){
+	for(var i = glowEffects.length - 1; i >= 0; i--)
+		glowEffects[i].draw(ctx);
 }
 
 function clrScreen(ctx, color = "#AAA"){
@@ -224,8 +240,9 @@ function draw(ctx){
 		drawProjectiles(ctx);
 	}
 	
-	drawLighting(ctx);
 	drawEffects(ctx);
+	drawLighting(ctx);
+	drawGlowEffects(ctx);
 	drawHUD(ctx);
 }
 function drawBG(ctx){

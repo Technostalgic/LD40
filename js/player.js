@@ -44,7 +44,7 @@ class player extends character{
 	handlePhysics(){
 		var runSpeed = 5;
 		
-		this.acc.y += 0.7; //gravity
+		this.acc.y += gravity; //gravity
 		
 		//ground friction
 		var fricforce = 0;
@@ -297,6 +297,15 @@ class playerClone{
 			intensity: 1 });
 	}
 	
+	spawnCorpse(vel){
+		var c = new corpse();
+		c.pos = vec2.fromOther(this.pos);
+		c.vel = vec2.fromOther(this.vd).plus(vel);
+		console.log(vel +":"+ this.vd +": "+ c.vel);
+		c.flipped = vel.x < 0;
+		c.add();
+	}
+	
 	update(){
 		if(this.dead) return;
 		this.currentFrame++;
@@ -314,7 +323,7 @@ class playerClone{
 		cf = Math.max(0, cf - 1);
 		var p0 = this.frames[cf].pos;
 		var p1 = this.pos;
-		this.vd = new vec2(p0.x - p1.x, p0.y - p1.y); //derived velocity
+		this.vd = new vec2(p1.x - p0.x, p1.y - p0.y); //derived velocity
 		this.acc = this.lastVel.minus(this.vd);
 		
 		if(this.frames[this.currentFrame].fl)

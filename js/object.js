@@ -97,6 +97,13 @@ class projectile extends object{
 	
 	hitClone(clone){
 		clone.dead = true;
+		var ycv = this.vel.y / 4;
+		
+		if(Math.abs(ycv) < 3)
+			ycv = -3;
+		
+		clone.spawnCorpse(new vec2(this.vel.x / 6, ycv));
+		
 		this.destroy();
 	}
 	hitPlayer(player){
