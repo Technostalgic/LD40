@@ -140,12 +140,18 @@ class player extends character{
 		if(this.vel.y > 0){
 			var bdist = this.hitbox.bottom - terobj.top;
 			if(this.vel.x > 0){
-				var rdist = this.hitbox.right - terobj.left;
-				coldir = bdist <= rdist ? 0 : 1;
+				if(bdist <= 1) coldir = bdist;
+				else{
+					var rdist = this.hitbox.right - terobj.left;
+					coldir = bdist <= rdist ? 0 : 1;
+				}
 			}
 			else if(this.vel.x < 0){
-				var ldist = terobj.right - this.hitbox.left;
-				coldir = bdist <= ldist ? 0 : 2;
+				if(bdist <= 1) coldir = bdist;
+				else{
+					var ldist = terobj.right - this.hitbox.left;
+					coldir = bdist <= ldist ? 0 : 2;
+				}
 			}
 			else {
 				var ldist = terobj.right - this.hitbox.left;
@@ -195,8 +201,6 @@ class player extends character{
 				coldir = rdist <= ldist ? 1 : 2;
 			}
 		}
-		console.log(coldir);
-		console.log("--");
 		
 		switch(coldir){
 			case 0: this.hitGround(terobj.top); break;
