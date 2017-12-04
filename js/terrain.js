@@ -24,8 +24,8 @@ class terrain{
 		var l1 = 125;
 		ob.position.y = r.bounds.bottom - l1;
 		var l1c = 0;
-		for(var i = 0; i < 3; i++){
-			if(Math.random() < 0.33) continue;
+		for(var i = 0; i < 4; i++){
+			if(Math.random() < 0.2) continue;
 			var xpos = 50 + i * ob.width;
 			ob.position.x = xpos;
 			r.terrainObjects.push(ob.clone());
@@ -34,14 +34,35 @@ class terrain{
 		
 		var l2 = l1 + 125;
 		ob.position.y = r.bounds.bottom - l2;
+		var l2c = 0;
 		for(var i = 0; i < l1c + 1; i++){
 			if(Math.random() < 0.33) continue;
 			var xpos = 50 + i * ob.width;
 			ob.position.x = xpos;
 			r.terrainObjects.push(ob.clone());
+			l2c++;
 		}
 		
-		return r.mirrorify();
+		var l3 = l2 + 125;
+		ob.position.y = r.bounds.bottom - l3;
+		for(var i = 0; i < l2c; i++){
+			if(Math.random() < 0.5) continue;
+			var xpos = 50 + i * ob.width;
+			ob.position.x = xpos;
+			r.terrainObjects.push(ob.clone());
+		}
+		
+		r.mirrorify();
+		
+		if(Math.random() > 0.65){
+			ob = new terrainObj(-32, 0, 64, 125);
+			ob.position.y = r.bounds.bottom - ob.height;
+			if(Math.random() > 0.55)
+				ob.position.y -= ob.height;
+			r.terrainObjects.push(ob.clone());
+		}
+		
+		return r;
 	}
 	
 	findPlayerSpawnPoint(){
@@ -80,9 +101,9 @@ class terrain{
 		var robj = new terrainObj(this.bounds.right, this.bounds.top - thickness, thickness, this.bounds.height + 2 * thickness);
 		var cobj = new terrainObj(this.bounds.left - thickness, this.bounds.top - thickness, this.bounds.width + 2 * thickness, thickness);
 		
-		gobj.draw(ctx);
 		lobj.draw(ctx);
 		robj.draw(ctx);
+		gobj.draw(ctx);
 		cobj.draw(ctx);
 		drawBoxOutline(ctx, this.bounds, "#FFF", 2);
 	}

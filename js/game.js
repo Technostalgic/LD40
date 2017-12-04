@@ -26,7 +26,8 @@ var gfx = {},
 	
 var dt = 0,
 	currentTime = 0,
-	roundTime = 0;
+	roundTime = 0,
+	maxRoundTime = 90 * 60;
 	
 var mousePos = new vec2(),
 	controls = {},
@@ -36,6 +37,7 @@ var mousePos = new vec2(),
 var camPos = new vec2();
 
 var p1,
+	vhDampen = 1,
 	worldTerrain,
 	projectiles =[],
 	clones = [];
@@ -63,16 +65,18 @@ function loadControlBindings(){
 }
 function loadGraphics(){
 	gfx = {
+		back_mainMenu: new Image(),
 		back_cave: new Image(),
-		hud_manaBar: new Image(),
+		hud_healthBar: new Image(),
 		tiles: new Image(),
 		player: new Image(),
 		clone: new Image(),
 		corpse: new Image(),
 		bullet: new Image()
 	};
-	gfx.back_cave.src = "./gfx/back_cave.png"
-	gfx.hud_manaBar.src = "./gfx/hud_manaBar.png";
+	gfx.back_mainMenu.src = "./gfx/back_mainMenu.png";
+	gfx.back_cave.src = "./gfx/back_cave.png";
+	gfx.hud_healthBar.src = "./gfx/hud_healthBar.png";
 	gfx.tiles.src = "./gfx/tiles.png";
 	gfx.player.src = "./gfx/player.png";
 	gfx.clone.src = "./gfx/clone.png";
@@ -231,6 +235,7 @@ function startRound(){
 	resetClones();
 	
 	p1 = new player();
+	vhDampen = p1.health / 10;
 	p1.pos = worldTerrain.findPlayerSpawnPoint();
 	setCamCenter(p1.pos.clone());
 }
@@ -272,7 +277,6 @@ function saveHighscore(){
 	catch(e){
 		console.log(e);
 	}
-	console.log(localStorage.getItem(saveKey));
 }
 
 function allClonesDead(){
@@ -313,6 +317,9 @@ function update(){
 
 function updateGame(){
 	roundTime += 1;
+	if(roundTime > maxRoundTime)
+		p1.kill();
+	
 	updateClones();
 	
 	p1.update();
@@ -411,11 +418,42 @@ function drawLighting(ctx){
 	clrScreen(context_lighting, "rgba(0, 0, 0, " + (1 - ambientLight).toString() + ")");
 }
 function drawHUD(ctx){
-	var tpos = new vec2(0, canvas.height - 70);
-	var sprt = new box(0, 0, gfx.hud_manaBar.width, gfx.hud_manaBar.height / 2);
-	ctx.drawImage(gfx.hud_manaBar, sprt.left, sprt.top, sprt.width, sprt.height, tpos.x, tpos.y, sprt.width * 2, sprt.height * 2);
-	sprt = new box(0, gfx.hud_manaBar.height / 2, gfx.hud_manaBar.width, gfx.hud_manaBar.height / 2);
-	ctx.drawImage(gfx.hud_manaBar, sprt.left, sprt.top, sprt.width, sprt.height, tpos.x, tpos.y, sprt.width * 2, sprt.height * 2);
+	//draw timeleft
+	var timeleft = Math.floor((maxRoundTime - roundTime) / 60 * 100) / 100;
+	timeleft = Math.max(0, timeleft);
+	ctx.textAlign = "left";
+	ctx.font = "32px sans-serif";
+	ctx.fillStyle = 
+		timeleft >= 30 ? "#FFF" : 
+			timeleft >= 20 ? "#FF0" : 
+				timeleft >= 10 ? "#F90" : 
+					"#F00";
+	var str = Math.floor(timeleft).toString();
+	if(str.length < 2) str = "0" + str;
+	ctx.fillText(str, 65, 100);
+	ctx.font = "16px sans-serif";
+	str = Math.floor(timeleft % 1 * 100).toFixed(0).toString();
+	if(str.length < 2) str = "0" + str;
+	ctx.fillText(str, 105, 100);
+	
+	//draw healthbar
+	var tpos = new vec2(10);
+	var sprt = new box(0, 0, gfx.hud_healthBar.width, gfx.hud_healthBar.height / 2);
+	sprt.position.y = sprt.height;
+	ctx.drawImage(gfx.hud_healthBar, sprt.left, sprt.top, sprt.width, sprt.height, tpos.x, tpos.y, sprt.width * 2, sprt.height * 2);
+
+	var hprc = Math.max(p1.health, 0) / 10;
+	vhDampen = (hprc + 5 * vhDampen) / 6;
+	sprt.size.x *= vhDampen;
+	sprt.position.y = 0;
+	ctx.drawImage(gfx.hud_healthBar, sprt.left, sprt.top, sprt.width, sprt.height, tpos.x, tpos.y, sprt.width * 2, sprt.height * 2);
+	
+	//draw score
+	ctx.textAlign = "right";
+	ctx.font = "32px sans-serif";
+	ctx.fillStyle = "#FFF";
+	ctx.fillText("Score:", canvas.width - 5, 40);
+	ctx.fillText(score.toString(), canvas.width - 5, 80);
 }
 
 function drawGame(ctx){
@@ -430,10 +468,27 @@ function drawMainMenuScreen(ctx){
 	ambientLight = 0.3;
 	camPos = getScreenCenter();
 	ctx.textAlign = "center";
+	var tpos = getScreenCenter().minus(new vec2(gfx.back_mainMenu.width / 2, gfx.back_mainMenu.height / 2));
+	
+	ctx.drawImage(gfx.back_mainMenu, tpos.x, tpos.y);
+	tpos = getScreenCenter();
+	lights.push({pos: tpos.plus(new vec2(-140, 75)),radius: 300});
+	lights.push({pos: tpos.plus(new vec2(140, 60)),radius: 300});
+	lights.push({pos: tpos.plus(new vec2(-115, -75)),radius: 300});
+	lights.push({pos: tpos.plus(new vec2(85, -70)),radius: 300});
+	
+	ctx.fillStyle = "#FF0";
+	ctx.font = "16px sans-serif";
+	ctx.fillText("YOU", tpos.x - 115, tpos.y - 115);
+	ctx.fillText("CLONES", tpos.x + 85, tpos.y - 125);
+	ctx.fillStyle = "#FA0";
+	ctx.fillText(">> KILL >>", tpos.x - 20, tpos.y - 50);
+	
+	ctx.fillStyle
 	
 	ctx.font = "46px sans-serif";
 	ctx.fillStyle = "#FFF";
-	var tpos = getScreenCenter().plus(new vec2(0, -250));
+	tpos = getScreenCenter().plus(new vec2(0, -250));
 	ctx.fillText("Clones", tpos.x, tpos.y + 10);
 	lights.push({pos: tpos.plus(new vec2(0, 0)),radius: 500});
 	lights.push({pos: tpos.plus(new vec2(0, 0)),radius: 200});

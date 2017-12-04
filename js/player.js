@@ -36,6 +36,10 @@ class player extends character{
 				this.gunCooldown = 0;
 		}
 		
+		if(this.health < 10){
+			this.health = Math.min(this.health + 0.005, 10);
+		}
+		
 		this.rFrames.push(createPlayerFrame(new vec2(this.pos.x * -1, this.pos.y)));
 		this.handlePhysics();
 		super.update();
@@ -114,6 +118,11 @@ class player extends character{
 			intensity:1 });
 	}
 	
+	kill(){
+		this.health = 0.001;
+		new projectile().hitPlayer(this);
+		this.health = 0;
+	}
 	isDead(){
 		return this.health <= 0;
 	}
@@ -124,7 +133,6 @@ class player extends character{
 		c.vel = this.vel.plus(vel);
 		c.flipped = vel.x < 0;
 		c.add();
-		console.log(c.vel +":"+ c.pos);
 	}
 	getBarrelPos(){
 		var tpos = new vec2(4, -4);
@@ -195,11 +203,11 @@ class player extends character{
 			else {
 				var ldist = terobj.right - this.hitbox.left;
 				var rdist = this.hitbox.right - terobj.left;
-				var bdist = this.hitbox.bottom - terobj.top;
-				switch(Math.min(ldist, rdist, bdist)){
+				var cdist = terobj.bottom - this.hitbox.top;
+				switch(Math.min(ldist, rdist, cdist)){
 					case rdist: coldir = 1; break;
 					case ldist: coldir = 2; break;
-					case bdist: coldir = 0; break;
+					case cdist: coldir = 3; break;
 				}
 			}
 		}
