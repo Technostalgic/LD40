@@ -27,7 +27,7 @@ var gfx = {},
 var dt = 0,
 	currentTime = 0,
 	roundTime = 0,
-	maxRoundTime = 90 * 60;
+	maxRoundTime = 45 * 60;
 	
 var mousePos = new vec2(),
 	controls = {},
@@ -316,7 +316,8 @@ function update(){
 }
 
 function updateGame(){
-	roundTime += 1;
+	if(roundTransition <= 0)
+		roundTime += 1;
 	if(roundTime > maxRoundTime)
 		p1.kill();
 	
@@ -424,9 +425,9 @@ function drawHUD(ctx){
 	ctx.textAlign = "left";
 	ctx.font = "32px sans-serif";
 	ctx.fillStyle = 
-		timeleft >= 30 ? "#FFF" : 
-			timeleft >= 20 ? "#FF0" : 
-				timeleft >= 10 ? "#F90" : 
+		timeleft >= 20 ? "#FFF" : 
+			timeleft >= 10 ? "#FF0" : 
+				timeleft >= 5 ? "#F70" : 
 					"#F00";
 	var str = Math.floor(timeleft).toString();
 	if(str.length < 2) str = "0" + str;
@@ -484,7 +485,10 @@ function drawMainMenuScreen(ctx){
 	ctx.fillStyle = "#FA0";
 	ctx.fillText(">> KILL >>", tpos.x - 20, tpos.y - 50);
 	
-	ctx.fillStyle
+	ctx.fillStyle = "#FC0"
+	ctx.font = "bold 20px sans-serif";
+	ctx.fillText("jump, shoot, and also shoot", tpos.x - 140, tpos.y + 130);
+	ctx.fillText("movement", tpos.x + 140, tpos.y + 130);
 	
 	ctx.font = "46px sans-serif";
 	ctx.fillStyle = "#FFF";

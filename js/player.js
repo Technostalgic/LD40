@@ -82,6 +82,7 @@ class player extends character{
 		if(controlActive(controls.left)) this.control_move(-1);
 		if(controlActive(controls.jump)) this.control_jump();
 		if(controlActive(controls.attack)) this.control_fire();
+		if(controlActive(controls.dodge)) this.control_fire();
 	}
 	control_move(dir){
 		var accspeed = 0.25;
