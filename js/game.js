@@ -102,7 +102,7 @@ function loadSounds(){
 	};
 }
 function printTerrain(){
-	clrScreen(context_terrain, "rgba(0,0,0,0)");
+	context_terrain.clearRect(0, 0, canvas_terrain.width, canvas_terrain.height);
 	worldTerrain.draw(context_terrain);
 }
 loadSounds();
@@ -594,7 +594,7 @@ function playSound(sound, restart = true, volume = 1){
 	sound.play();
 }
 function playMusic(volume = 1){
-	sfx.music.volume = volume;
+	sfx.music.volume = volume * 0.65;
 	sfx.music.loop = true;
 	sfx.music.play();
 }
