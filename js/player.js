@@ -29,6 +29,7 @@ class player extends character{
 	}
 	
 	update(){
+		if(this.isDead()) return;
 		if(this.gunCooldown > 0){
 			this.gunCooldown -= 1;
 			if(this.gunCooldown < 0)
@@ -85,8 +86,10 @@ class player extends character{
 		this.acc.x += dir * accspeed;
 	}
 	control_jump(){
-		if(this._onGround)
+		if(this._onGround){
 			this.vel.y = -9;
+			playSound(sfx.jump);
+		}
 		else if(this.vel.y < 0)
 			this.vel.y -= 0.475;
 	}
@@ -102,6 +105,8 @@ class player extends character{
 		this.gunCooldown = cooldown;
 		if(this.currentRFrame)
 			this.currentRFrame.f = true;
+
+		playSound(sfx.playerShoot);
 		
 		lights.push({
 			pos:this.getBarrelPos(), 
@@ -109,6 +114,18 @@ class player extends character{
 			intensity:1 });
 	}
 	
+	isDead(){
+		return this.health <= 0;
+	}
+	spawnCorpse(vel){
+		var c = new corpse();
+		c.isPlayer = true;
+		c.pos = this.pos.clone();
+		c.vel = this.vel.plus(vel);
+		c.flipped = vel.x < 0;
+		c.add();
+		console.log(c.vel +":"+ c.pos);
+	}
 	getBarrelPos(){
 		var tpos = new vec2(4, -4);
 		if(this._flipped) tpos.x *= -1;
@@ -212,6 +229,8 @@ class player extends character{
 		}
 	}
 	hitGround(ypos){
+		if(this.vel.y >= 9)
+			playSound(sfx.hitGround);
 		this.vel.y = 0;
 		this.pos.y = ypos - this.hitbox.height / 2;
 		this.hitbox.setCenter(this.pos);
@@ -234,6 +253,8 @@ class player extends character{
 	}
 	
 	draw(ctx){
+		lights.push({pos:this.pos, radius: 1200, intensity: 0.75});
+		if(this.isDead()) return;
 		var txtr = gfx.player;
 		var frame = 0;
 		var sprite = new box(0, 0, 12, 19);
@@ -258,7 +279,6 @@ class player extends character{
 		
 		drawSprite(ctx, txtr, this.pos, sprite, sprite.size.multiply(this.scale), this._flipped);
 		//drawBoxOutline(ctx, this.hitbox, "#FFF");
-		lights.push({pos:this.pos, radius: 1200, intensity: 0.75});
 	}
 }
 
@@ -296,6 +316,8 @@ class playerClone{
 			pos:this.getBarrelPos(), 
 			radius: 350, 
 			intensity: 1 });
+			
+		playSound(sfx.cloneShoot);
 	}
 	
 	spawnCorpse(vel){

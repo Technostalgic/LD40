@@ -19,7 +19,7 @@ class terrain{
 	static generateLevel(){
 		var r = new terrain();
 		
-		var ob = new terrainObj(0, 0, 125, 20);
+		var ob = new terrainObj(0, 0, 125, 32);
 		
 		var l1 = 125;
 		ob.position.y = r.bounds.bottom - l1;
@@ -73,17 +73,17 @@ class terrain{
 	}
 	
 	drawBounds(ctx){
-		var thickness = 1000;
+		var thickness = Math.floor(1000 / 32) * 32;
 		
 		var gobj = new terrainObj(this.bounds.left - thickness, this.bounds.bottom, this.bounds.width + 2 * thickness, thickness);
 		var lobj = new terrainObj(this.bounds.left - thickness, this.bounds.top - thickness, thickness, this.bounds.height + 2 * thickness);
 		var robj = new terrainObj(this.bounds.right, this.bounds.top - thickness, thickness, this.bounds.height + 2 * thickness);
 		var cobj = new terrainObj(this.bounds.left - thickness, this.bounds.top - thickness, this.bounds.width + 2 * thickness, thickness);
 		
-		drawBoxFill(ctx, gobj, "#CCC");
-		drawBoxFill(ctx, lobj, "#CCC");
-		drawBoxFill(ctx, robj, "#CCC");
-		drawBoxFill(ctx, cobj, "#CCC");
+		gobj.draw(ctx);
+		lobj.draw(ctx);
+		robj.draw(ctx);
+		cobj.draw(ctx);
 		drawBoxOutline(ctx, this.bounds, "#FFF", 2);
 	}
 	draw(ctx){
@@ -98,6 +98,9 @@ class terrainObj extends box{
 	constructor(x = 0, y = x, w = 100, h = 20){
 		super(x, y, w, h);
 		this.isPlatform = false;
+		this.size = new vec2(
+			Math.floor(this.width / 32) * 32,
+			Math.floor(this.height / 32) * 32);
 	}
 	
 	static fromBounds(l, r, t, b){
@@ -113,8 +116,26 @@ class terrainObj extends box{
 	}
 	
 	draw(ctx){
-		if(!this.isPlatform)
-			drawBoxFill(ctx, this, "#CCC");
-		drawBoxOutline(ctx, this, "#FFF", 2);
+		var tpos = this.position.plus(new vec2(1500));
+		
+		var sprite = new box(0, 0, 16, 16);
+		for(var x = 0; x < this.width; x += 32){
+			if(x == 0) sprite.position.x = 16;
+			else if(x + 32 >= this.width) sprite.position.x = 32;
+			else sprite.position.x = 0;
+			
+			for(var y = 0; y < this.height; y += 32){
+				drawSprite(
+					ctx,
+					gfx.tiles,
+					tpos.plus(new vec2(x, y)).plus(new vec2(16)),
+					sprite,
+					new vec2(32),
+					false,
+					0,
+					true
+					);
+			}
+		}
 	}
 }

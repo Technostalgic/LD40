@@ -120,14 +120,32 @@ class projectile extends object{
 			ycv = -3;
 		
 		clone.spawnCorpse(new vec2(this.vel.x / 6, ycv));
-		
 		this.destroy();
+		score += 1;
+		
+		var snd = [
+			sfx.death1,sfx.death2,sfx.death3,sfx.death4
+			][Math.floor(Math.random() * 4)];
+		playSound(snd);
 		
 		if(allClonesDead())
 			roundTransition++;
 	}
 	hitPlayer(player){
+		if(player.health <= 0 || roundTransition > 0) return;
 		this.destroy();
+		player.health -= 3;
+		if(player.health <= 0) {
+			var ycv = this.vel.y / 4;
+			if(Math.abs(ycv) < 3)
+				ycv = -3;
+			player.spawnCorpse(new vec2(this.vel.x / 2, ycv));
+			roundTransition++;
+			playSound(sfx.loseGame);
+			stopMusic();
+			return;
+		}
+		playSound(sfx.playerHurt);
 	}
 	
 	add(){
@@ -160,6 +178,8 @@ class projectile extends object{
 			p.intensity = 1 + Math.random() * 0.5;
 			p.add();
 		}
+		
+		playSound(sfx.bulletHit);
 	}
 	
 	draw(ctx){
