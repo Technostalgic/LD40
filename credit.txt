@@ -1,0 +1,4 @@
+Music: Mark Sparling, daily chiptune #500: https://soundcloud.com/marksparling
+SFX: Juhani Junkala, Subspace Audio: https://opengameart.org/users/subspaceaudio
+Tile Texture: Joe Williamson: https://opengameart.org/users/joe-williamson
+Background Texture: "PWL": https://opengameart.org/users/pwl
